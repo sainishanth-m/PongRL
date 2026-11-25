@@ -1,0 +1,36 @@
+flowchart TD
+    Start([Start]) --> LoadConf["Load Config"]
+    LoadConf --> CreateEnv["Create Environment"]
+    CreateEnv --> CreateAg["Create Agent"]
+    CreateAg --> InitLog["Initialize Logger"]
+    InitLog --> ResetEnv["Reset Env"]
+    
+    ResetEnv --> SelAction["Select Action"]
+    SelAction --> StepEnv["Step Env"]
+    StepEnv --> StoreTrans["Store Transition"]
+    StoreTrans --> DecideUpdate{"Update?"}
+    
+    DecideUpdate -- Yes --> CompLoss["Compute Loss"]
+    CompLoss --> Backw["Backward"]
+    Backw --> Optm["Optimize"]
+    Optm --> DecideEpDone{"Episode Done?"}
+    
+    DecideUpdate -- No --> DecideEpDone
+    
+    DecideEpDone -- Yes --> LogEp["Log Episode"]
+    LogEp --> ChkBest["Check Best Model"]
+    ChkBest --> DecideChkpt{"Checkpoint?"}
+    
+    DecideEpDone -- No --> DecideSteps{"Total Steps Done?"}
+    
+    DecideChkpt -- Yes --> SaveMod["Save Model"]
+    SaveMod --> DecideSteps
+    DecideChkpt -- No --> DecideSteps
+    
+    DecideSteps -- Yes --> FinalSave["Final Save"]
+    FinalSave --> PlotMet["Plot Metrics"]
+    PlotMet --> End([End])
+    
+    DecideSteps -- No --> SelAction
+
+    Interrupt["KeyboardInterrupt"] -.-> FinalSave

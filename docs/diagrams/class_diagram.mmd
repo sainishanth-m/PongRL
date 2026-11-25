@@ -1,0 +1,103 @@
+classDiagram
+    class BaseAgent {
+        <<abstract>>
+        +select_action(state)
+        +update()
+        +save(path)
+        +load(path)
+        +get_hyperparams()
+    }
+    class ReinforceAgent {
+        -policy_net: PolicyNetwork
+        -optimizer: Optimizer
+        -gamma: float
+        +select_action(state)
+        +update()
+    }
+    class DQNAgent {
+        -q_net: QNetwork
+        -target_net: QNetwork
+        -memory: ReplayBuffer
+        -epsilon: float
+        +select_action(state)
+        +update()
+    }
+    class PPOAgent {
+        -ac_net: ActorCriticNetwork
+        -memory: RolloutBuffer
+        -clip_ratio: float
+        +select_action(state)
+        +update()
+    }
+    
+    BaseAgent <|-- ReinforceAgent
+    BaseAgent <|-- DQNAgent
+    BaseAgent <|-- PPOAgent
+    
+    class NatureCNN {
+        +forward(x)
+    }
+    class SimpleMLP {
+        +forward(x)
+    }
+    class PolicyNetwork {
+        -feature_extractor: NatureCNN
+        +forward(x)
+    }
+    class QNetwork {
+        -feature_extractor: NatureCNN
+        +forward(x)
+    }
+    class ActorCriticNetwork {
+        -feature_extractor: NatureCNN
+        +forward(x)
+    }
+    
+    NatureCNN <-- PolicyNetwork
+    NatureCNN <-- QNetwork
+    NatureCNN <-- ActorCriticNetwork
+    
+    class ReplayBuffer {
+        +push(state, action, reward, next_state, done)
+        +sample(batch_size)
+    }
+    class RolloutBuffer {
+        +push(state, action, reward, value, log_prob, done)
+        +clear()
+        +get()
+    }
+    class EpisodeMemory {
+        +append(transition)
+        +clear()
+    }
+    
+    class Trainer {
+        -agent: BaseAgent
+        -env: Env
+        -config: Config
+        -logger: TrainingLogger
+        +train()
+    }
+    
+    class Evaluator {
+        -agent: BaseAgent
+        -env: Env
+        -config: Config
+        +evaluate()
+    }
+    
+    class TrainingLogger {
+        +log_step(metrics)
+        +plot_metrics()
+    }
+    
+    class Config {
+        +load(path)
+        -_merge_dicts(d1, d2)
+    }
+    
+    Trainer --> BaseAgent
+    Trainer --> Config
+    Trainer --> TrainingLogger
+    Evaluator --> BaseAgent
+    Evaluator --> Config

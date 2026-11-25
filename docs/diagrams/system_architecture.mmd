@@ -1,0 +1,66 @@
+graph TD
+    subgraph UI ["User Interface"]
+        train["train.py"]
+        eval["evaluate.py"]
+        bench["benchmark.py"]
+        dash["Dashboard"]
+    end
+
+    subgraph Core ["Core Engine"]
+        trainer["Trainer"]
+        evaluator["Evaluator"]
+        config["Config"]
+    end
+
+    subgraph Agents ["RL Agents"]
+        baseAgent["BaseAgent"]
+        reinforceAgent["ReinforceAgent"]
+        dqnAgent["DQNAgent"]
+        ppoAgent["PPOAgent"]
+    end
+
+    subgraph NNs ["Neural Networks"]
+        natureCNN["NatureCNN"]
+        simpleMLP["SimpleMLP"]
+        policyNet["PolicyNetwork"]
+        qNet["QNetwork"]
+        acNet["ActorCriticNetwork"]
+    end
+
+    subgraph Mem ["Memory"]
+        replay["ReplayBuffer"]
+        rollout["RolloutBuffer"]
+        epMem["EpisodeMemory"]
+    end
+
+    subgraph Env ["Environment"]
+        makeEnv["make_pong_env"]
+        gym["Gymnasium"]
+        pong["ALE/Pong-v5"]
+    end
+
+    subgraph Log ["Logging"]
+        logger["TrainingLogger"]
+        tb["TensorBoard"]
+        json["JSON Metrics"]
+    end
+
+    UI --> Core
+    train --> trainer
+    eval --> evaluator
+    bench --> evaluator
+    trainer --> config
+    evaluator --> config
+
+    trainer --> Agents
+    trainer --> Env
+    trainer --> Log
+
+    Agents --> NNs
+    Agents --> Mem
+
+    makeEnv --> gym
+    gym --> pong
+
+    logger --> tb
+    logger --> json

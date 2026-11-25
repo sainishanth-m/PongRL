@@ -1,0 +1,10 @@
+# REINFORCE specific configuration
+algorithm: "reinforce"
+training:
+  learning_rate: 0.00025
+  gamma: 0.99
+  batch_size: 1  # 1 episode per update
+  entropy_coef: 0.01
+
+model:
+  hidden_size: 512

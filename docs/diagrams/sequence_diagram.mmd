@@ -1,0 +1,62 @@
+sequenceDiagram
+    actor User
+    participant Main as train.py
+    participant Cfg as Config
+    participant Tr as Trainer
+    participant Ag as Agent
+    participant Env as Environment
+    participant Mem as ReplayBuffer
+    participant Log as Logger
+    participant TB as TensorBoard
+
+    User->>Main: run training
+    Main->>Cfg: load(config_path)
+    Cfg-->>Main: config_dict
+    Main->>Env: make_pong_env()
+    Env-->>Main: env
+    Main->>Ag: create_agent(config)
+    Ag-->>Main: agent
+    Main->>Tr: Trainer(agent, env, config)
+    Tr-->>Main: trainer
+    Main->>Tr: train()
+    
+    loop Training Loop
+        Tr->>Env: reset()
+        Env-->>Tr: initial_state
+        
+        loop Episode Steps
+            Tr->>Ag: select_action(state)
+            Ag-->>Tr: action
+            Tr->>Env: step(action)
+            Env-->>Tr: next_state, reward, done
+            Tr->>Mem: push(state, action, reward, next_state, done)
+            
+            alt Update Condition Met
+                Tr->>Ag: update()
+                Ag->>Mem: sample(batch_size)
+                Mem-->>Ag: batch
+                Ag->>Ag: compute_loss()
+                Ag->>Ag: backward()
+                Ag->>Ag: optimize()
+                Ag-->>Tr: metrics
+                Tr->>Log: log_step(metrics)
+                Log->>TB: add_scalar()
+            end
+        end
+        
+        Tr->>Log: log_episode_stats(reward, steps)
+        
+        alt Checkpoint Condition Met
+            Tr->>Ag: save(path)
+            Ag-->>Tr: success
+        end
+        
+        alt Eval Condition Met
+            Tr->>Tr: evaluate_agent()
+        end
+    end
+    
+    Tr->>Ag: save(final_path)
+    Tr->>Log: plot_metrics()
+    Tr-->>Main: done
+    Main-->>User: training completed
